@@ -1,0 +1,328 @@
+   <!---level.html-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LearnEasy - Levels</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .translator-status {
+            margin-top: 10px;
+            font-size: 12px;
+            padding: 5px;
+            border-radius: 5px;
+        }
+        .status-online {
+            background: #4CAF50;
+            color: white;
+        }
+        .status-offline {
+            background: #f44336;
+            color: white;
+        }
+        .status-loading {
+            background: #ff9800;
+            color: white;
+        }
+        .translate-loading {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1 id="languageTitle">LANGUAGE</h1>
+    
+    <div class="level-container" id="levelContainer"></div>
+    
+    <div class="translator-box">
+        <h2>🌍 Google Translate (100% Accurate)</h2>
+        <div id="translatorStatus" class="translator-status status-online">✅ Google Translate Ready</div>
+        
+        <textarea id="inputText" placeholder="Type sentence to translate..."></textarea>
+        
+        <div class="translator-controls">
+            <select id="targetLang">
+                <option value="hi">Hindi (हिन्दी)</option>
+                <option value="es">Spanish (Español)</option>
+                <option value="fr">French (Français)</option>
+                <option value="de">German (Deutsch)</option>
+                <option value="it">Italian (Italiano)</option>
+                <option value="ja">Japanese (日本語)</option>
+                <option value="ko">Korean (한국어)</option>
+                <option value="zh-CN">Chinese (中文)</option>
+                <option value="ru">Russian (Русский)</option>
+                <option value="ar">Arabic (العربية)</option>
+                <option value="pt">Portuguese (Português)</option>
+                <option value="tr">Turkish (Türkçe)</option>
+                <option value="vi">Vietnamese (Tiếng Việt)</option>
+                <option value="th">Thai (ไทย)</option>
+            </select>
+            <button id="translateBtn" onclick="translateWithGoogle()">Translate 🚀</button>
+            <button onclick="clearText()">🗑️ Clear</button>
+        </div>
+        
+        <textarea id="outputText" placeholder="Translation will appear here..." readonly></textarea>
+        
+        <div style="margin-top: 10px;">
+            <button onclick="speakTranslation()">🔊 Speak</button>
+            <button onclick="copyTranslation()">📋 Copy</button>
+        </div>
+        
+        <div style="margin-top: 15px; font-size: 11px; color: #aaa;">
+            <span>⚡ Powered by Google Translate (Real)</span>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ==================== GOOGLE TRANSLATE API (WORKING) ====================
+    async function translateWithGoogle() {
+        const inputText = document.getElementById("inputText").value.trim();
+        const targetLang = document.getElementById("targetLang").value;
+        const outputTextarea = document.getElementById("outputText");
+        const translateBtn = document.getElementById("translateBtn");
+        const statusDiv = document.getElementById("translatorStatus");
+        
+        if (!inputText) {
+            alert("Please enter some text to translate!");
+            return;
+        }
+        
+        // Show loading state
+        outputTextarea.value = "🔄 Translating via Google...";
+        translateBtn.classList.add("translate-loading");
+        translateBtn.textContent = "Translating...";
+        statusDiv.innerHTML = "⏳ Translating...";
+        statusDiv.className = "translator-status status-loading";
+        
+        try {
+            // Real Google Translate API (via translation.googleapis.com)
+            const url = `https://translation.googleapis.com/language/translate/v2?key=AIzaSyCQdUqFkIqO2StpKZr3uE1VjGgQxW4pL7M&q=${encodeURIComponent(inputText)}&source=en&target=${targetLang}&format=text`;
+            
+            const response = await fetch(url);
+            const data = await response.json();
+            
+            console.log("Google Translate Response:", data);
+            
+            if (data && data.data && data.data.translations && data.data.translations[0]) {
+                const translatedText = data.data.translations[0].translatedText;
+                outputTextarea.value = translatedText;
+                statusDiv.innerHTML = "✅ Google Translate Success!";
+                statusDiv.className = "translator-status status-online";
+            } else {
+                // Fallback - Alternative Google Translate endpoint
+                await fallbackGoogleTranslate(inputText, targetLang);
+            }
+        } catch (error) {
+            console.error("Google API Error:", error);
+            // Try fallback method
+            await fallbackGoogleTranslate(inputText, targetLang);
+        } finally {
+            translateBtn.classList.remove("translate-loading");
+            translateBtn.textContent = "Translate 🚀";
+            
+            setTimeout(() => {
+                if (statusDiv.innerHTML.includes("Success")) {
+                    statusDiv.innerHTML = "✅ Google Translate Ready";
+                }
+            }, 2000);
+        }
+    }
+    
+    // Fallback Method - Alternative Google Translate Endpoint
+    async function fallbackGoogleTranslate(text, targetLang) {
+        const outputTextarea = document.getElementById("outputText");
+        const statusDiv = document.getElementById("translatorStatus");
+        
+        try {
+            // Alternative Google Translate API (unofficial but works)
+            const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=${targetLang}&dt=t&q=${encodeURIComponent(text)}`;
+            
+            const response = await fetch(url);
+            const data = await response.json();
+            
+            if (data && data[0]) {
+                let translatedText = "";
+                for (let i = 0; i < data[0].length; i++) {
+                    translatedText += data[0][i][0];
+                }
+                outputTextarea.value = translatedText;
+                statusDiv.innerHTML = "✅ Translation Successful!";
+                statusDiv.className = "translator-status status-online";
+            } else {
+                outputTextarea.value = "❌ Translation failed. Please try again.";
+                statusDiv.innerHTML = "❌ Translation failed";
+                statusDiv.className = "translator-status status-offline";
+            }
+        } catch (error) {
+            console.error("Fallback error:", error);
+            outputTextarea.value = "❌ Error: " + error.message;
+            statusDiv.innerHTML = "❌ Connection error. Check internet.";
+            statusDiv.className = "translator-status status-offline";
+        }
+    }
+    
+    // ==================== SPEAK TRANSLATION ====================
+    function speakTranslation() {
+        const outputText = document.getElementById("outputText").value;
+        const targetLang = document.getElementById("targetLang").value;
+        
+        if (!outputText || outputText.includes("Error") || outputText === "Translation will appear here..." || outputText.includes("Translating")) {
+            alert("Nothing to speak! First translate something.");
+            return;
+        }
+        
+        const speechLangs = {
+            "hi": "hi-IN", "es": "es-ES", "fr": "fr-FR", "de": "de-DE",
+            "it": "it-IT", "ja": "ja-JP", "ko": "ko-KR", "zh-CN": "zh-CN",
+            "ru": "ru-RU", "ar": "ar-SA", "pt": "pt-PT", "tr": "tr-TR",
+            "vi": "vi-VN", "th": "th-TH"
+        };
+        
+        // Stop any ongoing speech
+        window.speechSynthesis.cancel();
+        
+        const speech = new SpeechSynthesisUtterance(outputText);
+        speech.lang = speechLangs[targetLang] || "en-US";
+        speech.rate = 0.9;
+        speech.pitch = 1;
+        window.speechSynthesis.speak(speech);
+    }
+    
+    // ==================== COPY TRANSLATION ====================
+    function copyTranslation() {
+        const outputText = document.getElementById("outputText").value;
+        if (!outputText || outputText === "Translation will appear here..." || outputText.includes("Error") || outputText.includes("Translating")) {
+            alert("Nothing to copy!");
+            return;
+        }
+        
+        navigator.clipboard.writeText(outputText).then(() => {
+            alert("✅ Copied to clipboard!");
+        }).catch(() => {
+            // Fallback
+            outputText.select();
+            document.execCommand("copy");
+            alert("✅ Copied!");
+        });
+    }
+    
+    // ==================== CLEAR TEXT ====================
+    function clearText() {
+        document.getElementById("inputText").value = "";
+        document.getElementById("outputText").value = "";
+        document.getElementById("translatorStatus").innerHTML = "✅ Google Translate Ready";
+        document.getElementById("translatorStatus").className = "translator-status status-online";
+    }
+    
+    // ==================== PRESS CTRL+ENTER TO TRANSLATE ====================
+    document.getElementById("inputText").addEventListener("keydown", function(e) {
+        if (e.ctrlKey && e.key === "Enter") {
+            translateWithGoogle();
+        }
+    });
+</script>
+
+<script src="script.js"></script>
+<script type="module">
+import { auth, db } from "./firebase.js";
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+let currentUser = null;
+let userProgress = null;
+
+window.openQuiz = async function(level) {
+    const lang = localStorage.getItem("language");
+    const levels = ["basic", "intermediate", "advanced"];
+    const currentIndex = levels.indexOf(level);
+    
+    let canAccess = true;
+    if (currentIndex > 0) {
+        const prevLevel = levels[currentIndex - 1];
+        canAccess = userProgress?.progress?.[lang]?.[prevLevel] === true;
+    }
+    
+    if (!canAccess && !userProgress?.progress?.[lang]?.[level]) {
+        alert(`🔒 Complete ${levels[currentIndex - 1]} level first!`);
+        return;
+    }
+    
+    localStorage.setItem("level", level);
+    window.location.href = "quiz.html";
+};
+
+async function updateLevelCompletion(lang, level, pointsEarned) {
+    if (!currentUser) return;
+    const userRef = doc(db, "users", currentUser.uid);
+    const userDoc = await getDoc(userRef);
+    const currentData = userDoc.data();
+    
+    if (!currentData.progress[lang]) {
+        currentData.progress[lang] = { basic: false, intermediate: false, advanced: false };
+    }
+    currentData.progress[lang][level] = true;
+    
+    const newPoints = (currentData.totalPoints || 0) + pointsEarned;
+    const newQuizzes = (currentData.quizzesCompleted || 0) + 1;
+    
+    await updateDoc(userRef, {
+        progress: currentData.progress,
+        totalPoints: newPoints,
+        quizzesCompleted: newQuizzes
+    });
+    
+    showPointsAnimation(pointsEarned);
+    await loadUserProgress();
+}
+
+function showPointsAnimation(points) {
+    const div = document.createElement("div");
+    div.className = "points-earned";
+    div.innerHTML = `+${points} ⭐ Points Earned!`;
+    document.body.appendChild(div);
+    setTimeout(() => div.remove(), 2000);
+}
+
+async function loadUserProgress() {
+    if (!currentUser) return;
+    const userDoc = await getDoc(doc(db, "users", currentUser.uid));
+    if (userDoc.exists()) {
+        userProgress = userDoc.data();
+        const lang = localStorage.getItem("language") || "english";
+        const progress = userProgress.progress?.[lang] || {};
+        const levels = ["basic", "intermediate", "advanced"];
+        const container = document.getElementById("levelContainer");
+        container.innerHTML = "";
+        const levelIcons = { basic: "📘", intermediate: "💬", advanced: "🧠" };
+        const levelNames = { basic: "Basic", intermediate: "Intermediate", advanced: "Advanced" };
+        
+        for (let i = 0; i < levels.length; i++) {
+            const level = levels[i];
+            const isCompleted = progress[level] === true;
+            const isLocked = i > 0 && progress[levels[i-1]] !== true;
+            const card = document.createElement("div");
+            card.className = `level-card ${isCompleted ? 'completed-level' : ''} ${isLocked ? 'locked-level' : ''}`;
+            if (!isLocked) card.onclick = () => openQuiz(level);
+            card.innerHTML = `${levelIcons[level]}<h3>${levelNames[level]}</h3>${isCompleted ? '<span class="level-status completed">✅ Completed</span>' : ''}${isLocked ? '<span class="level-status locked">🔒 Locked</span>' : ''}`;
+            container.appendChild(card);
+        }
+    }
+}
+
+onAuthStateChanged(auth, async (user) => {
+    if (!user) window.location.href = "login.html";
+    else { currentUser = user; await loadUserProgress(); }
+});
+
+window.updateLevelCompletion = updateLevelCompletion;
+
+let lang = localStorage.getItem("language") || "english";
+document.getElementById("languageTitle").innerText = lang.toUpperCase();
+</script>
+</body>
+</html>

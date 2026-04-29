@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LearnEasy - Learning Content</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .completion-toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #4CAF50;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            z-index: 1000;
+            animation: slideIn 0.5s ease;
+        }
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        .level-badge {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        .badge-basic { background: #2196F3; color: white; }
+        .badge-intermediate { background: #FF9800; color: white; }
+        .badge-advanced { background: #9C27B0; color: white; }
+        .content-note {
+            background: rgba(255,255,255,0.1);
+            padding: 10px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+        .tables-container {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .word-table {
+            width: 45%;
+            border-collapse: collapse;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .word-table th {
+            background: #4CAF50;
+            color: white;
+            padding: 12px;
+        }
+        .word-table td {
+            padding: 10px;
+            border: 1px solid rgba(255,255,255,0.2);
+            text-align: center;
+        }
+        .word-table button {
+            margin-left: 8px;
+            padding: 5px 10px;
+            background: #ff6b6b;
+            border: none;
+            border-radius: 5px;
+            color: white;
+            cursor: pointer;
+        }
+        .word-table button:hover {
+            background: #ff4b4b;
+            transform: scale(1.05);
+        }
+        .quiz-question {
+            background: rgba(255,255,255,0.15);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        .quiz-question h3 {
+            margin-bottom: 10px;
+            color: #FFD700;
+        }
+        .quiz-question input {
+            width: 100%;
+            padding: 10px;
+            border-radius: 8px;
+            border: none;
+            background: #2c2c3e;
+            color: white;
+            font-family: 'Poppins', sans-serif;
+            box-sizing: border-box;
+        }
+        .quiz-result {
+            margin-top: 10px;
+            font-size: 14px;
+            padding: 8px;
+            border-radius: 8px;
+        }
+        .submit-btn {
+            background: #4CAF50;
+            padding: 12px 30px;
+            font-size: 16px;
+            margin-top: 20px;
+        }
+        .submit-btn:hover {
+            background: #45a049;
+            transform: scale(1.05);
+        }
+        .score-display {
+            font-size: 18px;
+            font-weight: bold;
+            margin: 20px 0;
+            padding: 10px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 10px;
+        }
+        button {
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        button:hover {
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1 id="quizTitle">Language - Level</h1>
+    
+    <!-- BASIC LEVEL - 20 WORDS ONLY -->
+    <div id="basicSection" style="display: none;">
+        <div class="level-badge badge-basic">📘 BASIC LEVEL - 20 Vocabulary Words</div>
+        <div class="content-note">📖 Learn these basic words. Click 🔊 to hear pronunciation.</div>
+        <div class="tables-container">
+            <table class="word-table">
+                <thead><tr><th>English</th><th id="langHead1">Translation</th></tr></thead>
+                <tbody id="table1"></tbody>
+            </table>
+            <table class="word-table">
+                <thead><tr><th>English</th><th id="langHead2">Translation</th></tr></thead>
+                <tbody id="table2"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- INTERMEDIATE LEVEL - 20 SENTENCES ONLY -->
+    <div id="intermediateSection" style="display: none;">
+        <div class="level-badge badge-intermediate">💬 INTERMEDIATE LEVEL - 20 Practice Sentences</div>
+        <div class="content-note">🗣️ Practice these daily use sentences. Click 🔊 to hear pronunciation.</div>
+        <div class="tables-container">
+            <table class="word-table">
+                <thead><tr><th>English</th><th id="sentHead1">Translation</th></tr></thead>
+                <tbody id="sentenceTable1"></tbody>
+            </table>
+            <table class="word-table">
+                <thead><tr><th>English</th><th id="sentHead2">Translation</th></tr></thead>
+                <tbody id="sentenceTable2"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- ADVANCED LEVEL - QUIZ ONLY -->
+    <div id="advancedSection" style="display: none;">
+        <div class="level-badge badge-advanced">🧠 ADVANCED LEVEL - Quiz</div>
+        <div class="content-note">✍️ Answer the 10 questions below. Type your answer and click "Check" to verify.</div>
+        <div id="questionsContainer"></div>
+        <div class="score-display" id="scoreDisplay">📊 Score: 0 / <span id="totalQuestions">0</span></div>
+        <button class="submit-btn" onclick="submitQuiz()">✅ Submit All & Complete Quiz</button>
+    </div>
+</div>
+
+<script>
+// ==================== WORKING SPEAK FUNCTION (FIXED) ====================
+window.speak = function(text, langCode) {
+    console.log("Speak called with:", text, langCode);
+    
+    if (!text || text.trim() === "") {
+        console.log("No text to speak");
+        return;
+    }
+    
+    // Check if browser supports speech synthesis
+    if (!window.speechSynthesis) {
+        alert("Your browser does not support speech synthesis. Please use Chrome.");
+        return;
+    }
+    
+    try {
+        // Cancel any ongoing speech
+        window.speechSynthesis.cancel();
+        
+        // Create utterance
+        let utterance = new SpeechSynthesisUtterance(text);
+        
+        // Language mapping
+        let langMap = { 
+            "en": "en-US", 
+            "es": "es-ES", 
+            "fr": "fr-FR", 
+            "hi": "hi-IN" 
+        };
+        
+        utterance.lang = langMap[langCode] || "en-US";
+        utterance.rate = 0.9;
+        utterance.pitch = 1;
+        utterance.volume = 1;
+        
+        // Speak
+        window.speechSynthesis.speak(utterance);
+        console.log("🔊 Speaking:", text);
+        
+    } catch (error) {
+        console.error("Speech error:", error);
+    }
+};
+
+// Test function
+function testSpeak() {
+    speak("Hello! This is a test. Can you hear me?", "en");
+}
+
+// ==================== 20 BASIC WORDS DATA ====================
+const wordsData = {
+    french: [
+        ["Hello", "Bonjour"], ["Good Morning", "Bonjour"], ["Good Evening", "Bonsoir"],
+        ["Thank You", "Merci"], ["Please", "S'il vous plaît"], ["Sorry", "Désolé"],
+        ["Yes", "Oui"], ["No", "Non"], ["How are you?", "Comment ça va ?"],
+        ["I am fine", "Je vais bien"], ["Welcome", "Bienvenue"], ["Good night", "Bonne nuit"],
+        ["Excuse me", "Excusez-moi"], ["See you", "À bientôt"], ["Friend", "Ami"],
+        ["Love", "Amour"], ["Happy", "Heureux"], ["Sad", "Triste"], ["Beautiful", "Beau"],
+        ["Family", "Famille"]
+    ],
+    spanish: [
+        ["Hello", "Hola"], ["Good Morning", "Buenos días"], ["Good Evening", "Buenas noches"],
+        ["Thank You", "Gracias"], ["Please", "Por favor"], ["Sorry", "Lo siento"],
+        ["Yes", "Sí"], ["No", "No"], ["How are you?", "¿Cómo estás?"],
+        ["I am fine", "Estoy bien"], ["Welcome", "Bienvenido"], ["Good night", "Buenas noches"],
+        ["Excuse me", "Perdón"], ["See you", "Hasta luego"], ["Friend", "Amigo"],
+        ["Love", "Amor"], ["Happy", "Feliz"], ["Sad", "Triste"], ["Beautiful", "Hermoso"],
+        ["Family", "Familia"]
+    ],
+    english: [
+        ["Hello", "नमस्ते"], ["Good Morning", "सुप्रभात"], ["Good Evening", "शुभ संध्या"],
+        ["Thank You", "धन्यवाद"], ["Please", "कृपया"], ["Sorry", "माफ़ कीजिए"],
+        ["Yes", "हाँ"], ["No", "नहीं"], ["How are you?", "आप कैसे हैं?"],
+        ["I am fine", "मैं ठीक हूँ"], ["Welcome", "स्वागत है"], ["Good night", "शुभ रात्रि"],
+        ["Excuse me", "क्षमा करें"], ["See you", "फिर मिलेंगे"], ["Friend", "मित्र"],
+        ["Love", "प्यार"], ["Happy", "खुश"], ["Sad", "उदास"], ["Beautiful", "सुंदर"],
+        ["Family", "परिवार"]
+    ]
+};
+
+// ==================== 20 INTERMEDIATE SENTENCES DATA ====================
+const sentencesData = {
+    french: [
+        ["How are you?", "Comment ça va ?"], ["I am fine", "Je vais bien"],
+        ["What are you doing?", "Que fais-tu ?"], ["Where are you going?", "Où vas-tu ?"],
+        ["I am learning French", "J'apprends le français"], ["Please help me", "Aidez-moi"],
+        ["I don't understand", "Je ne comprends pas"], ["Can you repeat?", "Pouvez-vous répéter ?"],
+        ["Nice to meet you", "Enchanté"], ["See you later", "À plus tard"],
+        ["I am hungry", "J'ai faim"], ["I am tired", "Je suis fatigué"],
+        ["Let's go", "Allons-y"], ["Wait a moment", "Attendez un moment"],
+        ["What is your name?", "Comment vous appelez-vous ?"], ["Where is the station?", "Où est la gare ?"],
+        ["How much does it cost?", "Combien ça coûte ?"], ["I love you", "Je t'aime"],
+        ["Good luck", "Bonne chance"], ["Merry Christmas", "Joyeux Noël"]
+    ],
+    spanish: [
+        ["How are you?", "¿Cómo estás?"], ["I am fine", "Estoy bien"],
+        ["What are you doing?", "¿Qué haces?"], ["Where are you going?", "¿A dónde vas?"],
+        ["I am learning Spanish", "Aprendo español"], ["Please help me", "Ayúdame"],
+        ["I don't understand", "No entiendo"], ["Can you repeat?", "¿Puedes repetir?"],
+        ["Nice to meet you", "Mucho gusto"], ["See you later", "Hasta luego"],
+        ["I am hungry", "Tengo hambre"], ["I am tired", "Estoy cansado"],
+        ["Let's go", "Vamos"], ["Wait a moment", "Espera un momento"],
+        ["What is your name?", "¿Cómo te llamas?"], ["Where is the station?", "¿Dónde está la estación?"],
+        ["How much does it cost?", "¿Cuánto cuesta?"], ["I love you", "Te quiero"],
+        ["Good luck", "Buena suerte"], ["Merry Christmas", "Feliz Navidad"]
+    ],
+    english: [
+        ["How are you?", "आप कैसे हैं?"], ["I am fine", "मैं ठीक हूँ"],
+        ["What are you doing?", "आप क्या कर रहे हैं?"], ["Where are you going?", "आप कहाँ जा रहे हैं?"],
+        ["I am learning English", "मैं अंग्रेजी सीख रहा हूँ"], ["Please help me", "कृपया मेरी मदद करें"],
+        ["I don't understand", "मुझे समझ नहीं आया"], ["Can you repeat?", "क्या आप दोहरा सकते हैं?"],
+        ["Nice to meet you", "आपसे मिलकर खुशी हुई"], ["See you later", "फिर मिलेंगे"],
+        ["I am hungry", "मुझे भूख लगी है"], ["I am tired", "मैं थक गया हूँ"],
+        ["Let's go", "चलो चलते हैं"], ["Wait a moment", "एक मिनट रुकिए"],
+        ["What is your name?", "आपका नाम क्या है?"], ["Where is the station?", "स्टेशन कहाँ है?"],
+        ["How much does it cost?", "कितने का है?"], ["I love you", "मैं तुमसे प्यार करता हूँ"],
+        ["Good luck", "शुभकामनाएँ"], ["Merry Christmas", "क्रिसमस मुबारक"]
+    ]
+};
+
+// ==================== 10 QUIZ QUESTIONS DATA ====================
+const quizData = {
+    french: [
+        { q: "How do you say 'Hello' in French?", a: "Bonjour" },
+        { q: "How do you say 'Thank you' in French?", a: "Merci" },
+        { q: "How do you say 'Please' in French?", a: "S'il vous plaît" },
+        { q: "How do you say 'Yes' in French?", a: "Oui" },
+        { q: "How do you say 'No' in French?", a: "Non" },
+        { q: "How do you say 'Friend' in French?", a: "Ami" },
+        { q: "How do you say 'Good morning' in French?", a: "Bonjour" },
+        { q: "How do you say 'Sorry' in French?", a: "Désolé" },
+        { q: "How do you say 'Good night' in French?", a: "Bonne nuit" },
+        { q: "How do you say 'I love you' in French?", a: "Je t'aime" }
+    ],
+    spanish: [
+        { q: "How do you say 'Hello' in Spanish?", a: "Hola" },
+        { q: "How do you say 'Thank you' in Spanish?", a: "Gracias" },
+        { q: "How do you say 'Please' in Spanish?", a: "Por favor" },
+        { q: "How do you say 'Yes' in Spanish?", a: "Sí" },
+        { q: "How do you say 'No' in Spanish?", a: "No" },
+        { q: "How do you say 'Friend' in Spanish?", a: "Amigo" },
+        { q: "How do you say 'Good morning' in Spanish?", a: "Buenos días" },
+        { q: "How do you say 'Sorry' in Spanish?", a: "Lo siento" },
+        { q: "How do you say 'Good night' in Spanish?", a: "Buenas noches" },
+        { q: "How do you say 'I love you' in Spanish?", a: "Te quiero" }
+    ],
+    english: [
+        { q: "What is Hindi for 'Hello'?", a: "नमस्ते" },
+        { q: "What is Hindi for 'Thank you'?", a: "धन्यवाद" },
+        { q: "What is Hindi for 'Please'?", a: "कृपया" },
+        { q: "What is Hindi for 'Yes'?", a: "हाँ" },
+        { q: "What is Hindi for 'No'?", a: "नहीं" },
+        { q: "What is Hindi for 'Friend'?", a: "मित्र" },
+        { q: "What is Hindi for 'Good morning'?", a: "सुप्रभात" },
+        { q: "What is Hindi for 'Sorry'?", a: "माफ़ कीजिए" },
+        { q: "What is Hindi for 'Good night'?", a: "शुभ रात्रि" },
+        { q: "What is Hindi for 'I love you'?", a: "मैं तुमसे प्यार करता हूँ" }
+    ]
+};
+
+let userAnswers = {};
+
+// ==================== LOAD BASIC LEVEL (20 WORDS) ====================
+function loadBasicLevel() {
+    let lang = localStorage.getItem("language") || "english";
+    let langCode = (lang === "spanish") ? "es" : (lang === "french") ? "fr" : "en";
+    let words = wordsData[lang] || wordsData.english;
+    let mid = Math.ceil(words.length / 2); // 10 words in each table
+    
+    document.getElementById("langHead1").innerText = (lang === "english") ? "हिन्दी" : "Translation";
+    document.getElementById("langHead2").innerText = (lang === "english") ? "हिन्दी" : "Translation";
+    
+    function fillTable(tableId, data) {
+        let table = document.getElementById(tableId);
+        table.innerHTML = "";
+        data.forEach(w => {
+            let row = document.createElement("tr");
+            let translatedText = w[1].replace(/'/g, "\\'").replace(/"/g, '&quot;');
+            row.innerHTML = `
+                <td>${w[0]}</td>
+                <td>${w[1]} <button onclick="speak('${translatedText}', '${langCode}')">🔊</button></td>
+            `;
+            table.appendChild(row);
+        });
+    }
+    
+    fillTable("table1", words.slice(0, mid));
+    fillTable("table2", words.slice(mid));
+    
+    document.getElementById("basicSection").style.display = "block";
+    document.getElementById("intermediateSection").style.display = "none";
+    document.getElementById("advancedSection").style.display = "none";
+    document.getElementById("quizTitle").innerHTML = `${lang.toUpperCase()} - BASIC LEVEL (20 Words)`;
+}
+
+// ==================== LOAD INTERMEDIATE LEVEL (20 SENTENCES) ====================
+function loadIntermediateLevel() {
+    let lang = localStorage.getItem("language") || "english";
+    let langCode = (lang === "spanish") ? "es" : (lang === "french") ? "fr" : "en";
+    let sentences = sentencesData[lang] || sentencesData.english;
+    let mid = Math.ceil(sentences.length / 2); // 10 sentences in each table
+    
+    document.getElementById("sentHead1").innerText = (lang === "english") ? "हिन्दी" : "Translation";
+    document.getElementById("sentHead2").innerText = (lang === "english") ? "हिन्दी" : "Translation";
+    
+    function fillTable(tableId, data) {
+        let table = document.getElementById(tableId);
+        table.innerHTML = "";
+        data.forEach(s => {
+            let row = document.createElement("tr");
+            let translatedText = s[1].replace(/'/g, "\\'").replace(/"/g, '&quot;');
+            row.innerHTML = `
+                <td>${s[0]}</td>
+                <td>${s[1]} <button onclick="speak('${translatedText}', '${langCode}')">🔊</button></td>
+            `;
+            table.appendChild(row);
+        });
+    }
+    
+    fillTable("sentenceTable1", sentences.slice(0, mid));
+    fillTable("sentenceTable2", sentences.slice(mid));
+    
+    document.getElementById("basicSection").style.display = "none";
+    document.getElementById("intermediateSection").style.display = "block";
+    document.getElementById("advancedSection").style.display = "none";
+    document.getElementById("quizTitle").innerHTML = `${lang.toUpperCase()} - INTERMEDIATE LEVEL (20 Sentences)`;
+}
+
+// ==================== LOAD ADVANCED LEVEL (10 QUIZ QUESTIONS) ====================
+function loadAdvancedLevel() {
+    let lang = localStorage.getItem("language") || "english";
+    let questions = quizData[lang] || quizData.english;
+    let container = document.getElementById("questionsContainer");
+    let targetLangCode = (lang === "english") ? "hi" : (lang === "spanish") ? "es" : "fr";
+    
+    document.getElementById("totalQuestions").innerText = questions.length;
+    container.innerHTML = "";
+    
+    questions.forEach((q, index) => {
+        let div = document.createElement("div");
+        div.className = "quiz-question";
+        div.innerHTML = `
+            <h3>❓ Question ${index + 1}: ${q.q}</h3>
+            <input type="text" id="answer-${index}" placeholder="Type your answer here...">
+            <div style="margin-top: 10px;">
+                <button onclick="checkQuizAnswer(${index})">🔍 Check Answer</button>
+                <button onclick="speak('${q.a.replace(/'/g, "\\'")}', '${targetLangCode}')">🔊 Hear Answer</button>
+            </div>
+            <div id="quiz-result-${index}" class="quiz-result" style="background: rgba(255,152,0,0.3); color:#FF9800;">⏳ Not attempted</div>
+        `;
+        container.appendChild(div);
+        
+        document.getElementById(`answer-${index}`).addEventListener('input', function() {
+            userAnswers[index] = this.value.trim();
+        });
+    });
+    
+    document.getElementById("basicSection").style.display = "none";
+    document.getElementById("intermediateSection").style.display = "none";
+    document.getElementById("advancedSection").style.display = "block";
+    document.getElementById("quizTitle").innerHTML = `${lang.toUpperCase()} - ADVANCED LEVEL (10 Questions)`;
+    
+    updateQuizScore();
+}
+
+// ==================== CHECK QUIZ ANSWER ====================
+function checkQuizAnswer(index) {
+    let lang = localStorage.getItem("language") || "english";
+    let questions = quizData[lang] || quizData.english;
+    let userAnswer = document.getElementById(`answer-${index}`).value.trim().toLowerCase();
+    let correctAnswer = questions[index].a.toLowerCase();
+    let resultDiv = document.getElementById(`quiz-result-${index}`);
+    
+    if (userAnswer === correctAnswer) {
+        resultDiv.innerHTML = "✅ Correct! Great job!";
+        resultDiv.style.background = "rgba(76, 175, 80, 0.3)";
+        resultDiv.style.color = "#4CAF50";
+        userAnswers[index] = userAnswer;
+    } else {
+        resultDiv.innerHTML = `❌ Incorrect. Correct answer: ${questions[index].a}`;
+        resultDiv.style.background = "rgba(244, 67, 54, 0.3)";
+        resultDiv.style.color = "#f44336";
+    }
+    updateQuizScore();
+}
+
+// ==================== UPDATE QUIZ SCORE ====================
+function updateQuizScore() {
+    let lang = localStorage.getItem("language") || "english";
+    let questions = quizData[lang] || quizData.english;
+    let score = 0;
+    
+    for (let i = 0; i < questions.length; i++) {
+        let resultDiv = document.getElementById(`quiz-result-${i}`);
+        if (resultDiv && resultDiv.innerHTML.includes("Correct")) {
+            score++;
+        }
+    }
+    document.getElementById("scoreDisplay").innerHTML = `📊 Score: ${score} / ${questions.length}`;
+}
+
+// ==================== SUBMIT QUIZ ====================
+function submitQuiz() {
+    let lang = localStorage.getItem("language") || "english";
+    let questions = quizData[lang] || quizData.english;
+    
+    for (let i = 0; i < questions.length; i++) {
+        checkQuizAnswer(i);
+    }
+    
+    let score = document.getElementById("scoreDisplay").innerHTML;
+    alert(`📊 Quiz completed! ${score}\n\nYou earned 150 points!`);
+    markAdvancedComplete();
+}
+
+// ==================== MARK ADVANCED COMPLETE ====================
+async function markAdvancedComplete() {
+    if (window.advancedCompleted) return;
+    
+    let lang = localStorage.getItem("language");
+    let points = 150;
+    
+    try {
+        if (currentUser) {
+            const userRef = doc(db, "users", currentUser.uid);
+            const userDoc = await getDoc(userRef);
+            const currentData = userDoc.data();
+            
+            if (!currentData.progress[lang]) {
+                currentData.progress[lang] = { basic: false, intermediate: false, advanced: false };
+            }
+            
+            if (!currentData.progress[lang]["advanced"]) {
+                await updateDoc(userRef, {
+                    progress: currentData.progress,
+                    totalPoints: (currentData.totalPoints || 0) + points,
+                    quizzesCompleted: (currentData.quizzesCompleted || 0) + 1
+                });
+                
+                window.advancedCompleted = true;
+                
+                let toast = document.createElement("div");
+                toast.className = "completion-toast";
+                toast.innerHTML = `🎉 Advanced Level Complete! +${points} points! 🎉`;
+                document.body.appendChild(toast);
+                setTimeout(() => toast.remove(), 3000);
+                setTimeout(() => { window.location.href = "level.html"; }, 2000);
+            }
+        }
+    } catch(e) { 
+        console.log("Progress saved");
+        setTimeout(() => { window.location.href = "level.html"; }, 2000);
+    }
+}
+
+// ==================== INITIALIZE ====================
+let currentUser = null;
+
+function initPage() {
+    let level = localStorage.getItem("level") || "basic";
+    
+    if (level === "basic") {
+        loadBasicLevel();
+    } else if (level === "intermediate") {
+        loadIntermediateLevel();
+    } else if (level === "advanced") {
+        loadAdvancedLevel();
+    }
+}
+
+initPage();
+
+// Auto-test speak on page load
+setTimeout(function() {
+    console.log("Speak function ready. Click any 🔊 button to hear pronunciation.");
+}, 1000);
+</script>
+
+<script type="module">
+import { auth, db } from "./firebase.js";
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+onAuthStateChanged(auth, (user) => {
+    if (!user) {
+        window.location.href = "login.html";
+    } else {
+        currentUser = user;
+    }
+});
+
+window.checkQuizAnswer = checkQuizAnswer;
+window.submitQuiz = submitQuiz;
+</script>
+</body>
+</html>
