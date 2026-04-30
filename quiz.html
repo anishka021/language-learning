@@ -6,357 +6,477 @@
     <title>LearnEasy - Learning Content</title>
     <link rel="stylesheet" href="style.css">
     <style>
-        /* Global Styles */
-        body { background: linear-gradient(135deg, #5f2c82, #49a09d); font-family: 'Poppins', sans-serif; margin: 0; padding: 20px; color: white; }
-        .container { max-width: 1200px; margin: auto; background: rgba(255,255,255,0.1); border-radius: 20px; padding: 20px; backdrop-filter: blur(10px); }
-        h1 { text-align: center; margin-bottom: 30px; text-transform: uppercase; }
+        * { box-sizing: border-box; }
+        body { 
+            background: linear-gradient(135deg, #1e1e2f, #2a2a40); 
+            font-family: 'Poppins', 'Segoe UI', sans-serif; 
+            margin: 0; 
+            padding: 20px; 
+            color: white; 
+            min-height: 100vh;
+        }
+        .container { 
+            max-width: 1200px; 
+            margin: auto; 
+            background: rgba(255,255,255,0.08); 
+            border-radius: 20px; 
+            padding: 25px; 
+            backdrop-filter: blur(8px); 
+        }
+        h1 { text-align: center; margin-bottom: 30px; text-transform: uppercase; font-size: 28px; }
         
-        /* Level Badges */
-        .level-badge { display: inline-block; padding: 5px 15px; border-radius: 20px; font-size: 14px; font-weight: bold; margin-bottom: 20px; }
+        /* Badges */
+        .level-badge { display: inline-block; padding: 6px 20px; border-radius: 30px; font-size: 14px; font-weight: bold; margin-bottom: 20px; }
         .badge-basic { background: #2196F3; }
         .badge-intermediate { background: #FF9800; }
         .badge-advanced { background: #9C27B0; }
-        .content-note { background: rgba(0,0,0,0.4); padding: 10px; border-radius: 10px; margin-bottom: 20px; text-align: center; }
+        .content-note { background: rgba(0,0,0,0.5); padding: 12px; border-radius: 12px; margin-bottom: 25px; text-align: center; }
         
         /* Tables */
-        .tables-container { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; }
-        .word-table { width: 45%; border-collapse: collapse; background: rgba(0,0,0,0.3); border-radius: 10px; overflow: hidden; }
+        .tables-container { display: flex; gap: 25px; justify-content: center; flex-wrap: wrap; }
+        .word-table { width: 45%; border-collapse: collapse; background: rgba(0,0,0,0.35); border-radius: 15px; overflow: hidden; }
         .word-table th { background: #4CAF50; padding: 12px; text-align: center; }
-        .word-table td { padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.2); text-align: center; }
-        .word-table button { background: #ff6b6b; border: none; padding: 5px 10px; border-radius: 5px; color: white; cursor: pointer; margin-left: 10px; }
-        .word-table button:hover { background: #ff4b4b; transform: scale(1.05); }
+        .word-table td { padding: 12px 8px; border-bottom: 1px solid rgba(255,255,255,0.1); text-align: center; }
+        .word-table button { 
+            background: #ff6b6b; border: none; padding: 6px 12px; border-radius: 30px; 
+            color: white; cursor: pointer; margin-left: 12px; font-size: 12px; 
+        }
+        .word-table button:hover { background: #ff3b3b; transform: scale(1.05); }
         
-        /* Quiz Styles */
-        .quiz-card { background: rgba(0,0,0,0.3); border-radius: 15px; padding: 20px; margin-bottom: 20px; }
-        .quiz-card h3 { color: #FFD700; margin-bottom: 10px; }
-        .quiz-card input { width: 100%; padding: 10px; border-radius: 8px; border: none; background: #2c2c3e; color: white; box-sizing: border-box; }
-        .btn { background: #6c5ce7; border: none; padding: 8px 15px; border-radius: 8px; color: white; cursor: pointer; margin-right: 10px; margin-top: 10px; }
+        /* Quiz Styles (MCQ) */
+        .quiz-card { background: rgba(0,0,0,0.4); border-radius: 20px; padding: 20px; margin-bottom: 25px; border: 1px solid rgba(255,255,255,0.1); }
+        .quiz-question { font-size: 18px; font-weight: bold; margin-bottom: 15px; color: #FFD700; }
+        .options-list { display: flex; flex-direction: column; gap: 12px; margin: 15px 0; }
+        .option-item { display: flex; align-items: center; gap: 12px; background: rgba(255,255,255,0.08); padding: 10px 15px; border-radius: 12px; cursor: pointer; }
+        .option-item:hover { background: rgba(255,255,255,0.15); }
+        .option-item input { width: 18px; height: 18px; cursor: pointer; accent-color: #4CAF50; margin: 0; }
+        .option-item label { cursor: pointer; flex: 1; margin: 0; }
+        .btn { 
+            background: #6c5ce7; border: none; padding: 8px 18px; border-radius: 30px; 
+            color: white; cursor: pointer; margin-top: 15px; margin-right: 12px; font-weight: bold; 
+        }
         .btn-success { background: #4CAF50; }
         .btn-warning { background: #FF9800; }
-        .quiz-result { margin-top: 10px; padding: 8px; border-radius: 8px; }
-        .score-board { background: #00000066; padding: 15px; border-radius: 10px; text-align: center; font-size: 20px; margin: 20px 0; }
+        .btn-danger { background: #f44336; }
+        .quiz-result { margin-top: 15px; padding: 10px; border-radius: 12px; font-weight: bold; text-align: center; }
+        .score-board { background: #00000066; padding: 15px; border-radius: 15px; text-align: center; font-size: 22px; margin: 20px 0; font-weight: bold; }
         
-        button { cursor: pointer; transition: 0.2s; }
-        button:hover { transform: scale(1.02); filter: brightness(1.1); }
-        .status-msg { background: #333; padding: 5px 10px; border-radius: 5px; font-size: 12px; margin-top: 10px; text-align: center; }
+        /* Status Bar */
+        .status-bar { 
+            background: #2c2c3e; padding: 12px 15px; border-radius: 40px; font-size: 14px; 
+            margin-top: 25px; text-align: center; font-family: monospace; 
+            border-left: 4px solid #4CAF50; position: sticky; bottom: 10px;
+        }
+        .status-bar.error { border-left-color: #f44336; background: #4a2020; }
+        .status-bar.success { border-left-color: #4CAF50; background: #1a3a1a; }
+        
+        .test-speak-btn { background: #4CAF50; padding: 10px 20px; margin-bottom: 20px; font-size: 16px; }
+        .hidden { display: none; }
+        
+        /* Level Navigation Buttons */
+        .level-nav { display: flex; justify-content: center; gap: 15px; margin-bottom: 30px; flex-wrap: wrap; }
+        .level-nav-btn { background: #333; padding: 10px 25px; border-radius: 30px; cursor: pointer; font-weight: bold; transition: 0.2s; }
+        .level-nav-btn.active { background: #4CAF50; }
+        .level-nav-btn:hover { transform: scale(1.05); filter: brightness(1.1); }
     </style>
 </head>
 <body>
 <div class="container">
-    <h1 id="quizTitle">LearnEasy</h1>
+    <h1>🌟 LEARNEASY 🌟</h1>
     
-    <!-- ================= BASIC LEVEL (20 WORDS) ================= -->
+    <!-- Level Navigation Buttons -->
+    <div class="level-nav">
+        <div class="level-nav-btn" onclick="switchLevel('basic')" id="navBasic">📘 BASIC Words</div>
+        <div class="level-nav-btn" onclick="switchLevel('intermediate')" id="navInter">💬 INTERMEDIATE Sentences</div>
+        <div class="level-nav-btn" onclick="switchLevel('advanced')" id="navAdv">🧠 ADVANCED MCQ Quiz</div>
+    </div>  
+    
+    <!-- Level Sections -->
     <div id="basicSection">
-        <div class="level-badge badge-basic">📘 BASIC LEVEL - Vocabulary Words</div>
-        <div class="content-note">🔊 Click the <strong>Speak Button</strong> to hear pronunciation. Try speaking out loud!</div>
+        <div class="level-badge badge-basic">📘 BASIC LEVEL -Vocabulary Words</div>
+        <div class="content-note">🔊 <strong>Click the SPEAK button (🔊)</strong> to hear pronunciation.</div>
         <div class="tables-container">
-            <table class="word-table"><thead><tr><th>English</th><th id="langHead1">Translation</th></tr></thead><tbody id="table1"></tbody></table>
-            <table class="word-table"><thead><tr><th>English</th><th id="langHead2">Translation</th></tr></thead><tbody id="table2"></tbody></table>
+            <table class="word-table"><thead><tr><th>English</th><th>Translation</th></tr></thead><tbody id="table1"></tbody></table>
+            <table class="word-table"><thead><tr><th>English</th><th>Translation</th></tr></thead><tbody id="table2"></tbody></table>
         </div>
     </div>
 
-    <!-- ================= INTERMEDIATE LEVEL (20 SENTENCES) ================= -->
     <div id="intermediateSection" style="display: none;">
-        <div class="level-badge badge-intermediate">💬 INTERMEDIATE LEVEL -  Practice Sentences</div>
-        <div class="content-note">🗣️ Read the sentence, click 🔊 to hear it, and repeat for practice.</div>
+        <div class="level-badge badge-intermediate">💬 INTERMEDIATE LEVEL - Sentences</div>
+        <div class="content-note">🗣️ Click 🔊 to hear pronunciation. Repeat after it!</div>
         <div class="tables-container">
-            <table class="word-table"><thead><tr><th>English</th><th id="sentHead1">Translation</th></tr></thead><tbody id="sentenceTable1"></tbody></table>
-            <table class="word-table"><thead><tr><th>English</th><th id="sentHead2">Translation</th></tr></thead><tbody id="sentenceTable2"></tbody></table>
+            <table class="word-table"><thead><tr><th>English</th><th>Translation</th></tr></thead><tbody id="sentenceTable1"></tbody></table>
+            <table class="word-table"><thead><tr><th>English</th><th>Translation</th></tr></thead><tbody id="sentenceTable2"></tbody></table>
         </div>
     </div>
 
-    <!-- ================= ADVANCED LEVEL (QUIZ ONLY) ================= -->
     <div id="advancedSection" style="display: none;">
-        <div class="level-badge badge-advanced">🧠 ADVANCED LEVEL - Grammar & Vocabulary Quiz</div>
-        <div class="content-note">✍️ Type the correct answer in the box and click "Check". Complete all to earn 150 Points!</div>
+        <div class="level-badge badge-advanced">🧠 ADVANCED LEVEL - MCQ Quiz </div>
+        <div class="content-note">✅ Choose the correct option for each question. Complete all to get 150 Points!</div>
         <div id="questionsContainer"></div>
         <div class="score-board" id="scoreDisplay">📊 Score: 0 / 0</div>
-        <button class="btn btn-success" onclick="submitQuiz()" style="width:100%;">✅ SUBMIT ALL & COMPLETE LEVEL (150 POINTS)</button>
+        <button class="btn btn-success" onclick="submitMcqQuiz()" style="width:100%; padding: 14px;">✅ SUBMIT QUIZ & GET 150 POINTS</button>
     </div>
     
-    <div class="status-msg" id="speakStatus">🔊 System Ready. Click any Speak button to test audio.</div>
+    <!-- TEST BUTTON -->
+    <div style="text-align: center; margin: 20px 0;">
+        <button class="test-speak-btn" onclick="testSpeakFunction()">🔊 TEST SPEAKER (Click to hear 'Hello')</button>
+    </div>
+    
+    <div class="status-bar" id="globalStatus">🟢 System Ready. Click any Speak button or Test Speaker button above.</div>
 </div>
 
 <script>
-// ==================== 1. ULTIMATE SPEAK FIX ====================
+// ==================== 1. SPEAK FUNCTION (100% FIXED) ====================
+function testSpeakFunction() {
+    speak("Hello! This is a test message. Can you hear me clearly?", "en");
+}
+
 window.speak = function(text, langCode) {
-    console.log(`Speak requested: "${text}" for language: ${langCode}`);
-    const statusDiv = document.getElementById("speakStatus");
+    const statusDiv = document.getElementById("globalStatus");
     
     if (!text || text.trim() === "") {
         statusDiv.innerHTML = "⚠️ No text to speak!";
+        statusDiv.className = "status-bar error";
         return;
     }
     
-    // Alert user if browser is not supported (Firefox mainly)
+    // Check if browser supports speech synthesis
     if (!window.speechSynthesis) {
-        statusDiv.innerHTML = "❌ Your browser doesn't support Speech. PLEASE USE GOOGLE CHROME.";
-        alert("Please use Google Chrome browser for voice features.");
+        statusDiv.innerHTML = "❌ Your browser does not support Speech. PLEASE USE GOOGLE CHROME.";
+        statusDiv.className = "status-bar error";
+        alert("❌ This browser doesn't support voice. Please open in Google Chrome.");
         return;
     }
-
+    
     try {
         // Cancel any ongoing speech
         window.speechSynthesis.cancel();
         
         let utterance = new SpeechSynthesisUtterance(text);
         
-        // Map language codes correctly
+        // Language mapping
         let voiceMap = { 
-            "en": "en-US", "es": "es-ES", "fr": "fr-FR", "hi": "hi-IN" 
+            "en": "en-US", 
+            "es": "es-ES", 
+            "fr": "fr-FR", 
+            "hi": "hi-IN" 
         };
-        let voiceLang = voiceMap[langCode] || "en-US";
-        utterance.lang = voiceLang;
-        utterance.rate = 0.9;
-        utterance.pitch = 1;
+        
+        utterance.lang = voiceMap[langCode] || "en-US";
+        utterance.rate = 0.85;
+        utterance.pitch = 1.0;
         utterance.volume = 1;
         
-        utterance.onstart = () => { statusDiv.innerHTML = `🔊 Speaking: "${text.substring(0, 50)}..."`; };
-        utterance.onend = () => { statusDiv.innerHTML = "✅ Finished speaking. Click any button to repeat."; };
-        utterance.onerror = (e) => { 
-            console.error(e);
-            statusDiv.innerHTML = "❌ Speech error. Please check Chrome settings or microphone.";
-            alert("Speech Error: " + e.error);
+        // Event handlers
+        utterance.onstart = function() {
+            statusDiv.innerHTML = `🔊 SPEAKING: "${text.substring(0, 60)}..."`;
+            statusDiv.className = "status-bar";
         };
         
+        utterance.onend = function() {
+            statusDiv.innerHTML = "✅ Speaking finished. Click any button to repeat.";
+            statusDiv.className = "status-bar success";
+        };
+        
+        utterance.onerror = function(event) {
+            console.error("Speech error:", event);
+            statusDiv.innerHTML = "❌ Speech Error. Please check Chrome settings and microphone permissions.";
+            statusDiv.className = "status-bar error";
+        };
+        
+        // Speak
         window.speechSynthesis.speak(utterance);
-    } catch (e) {
-        console.error(e);
+        
+    } catch (error) {
+        console.error("Exception:", error);
         statusDiv.innerHTML = "❌ Exception occurred. Please use Google Chrome.";
-        alert("Exception: " + e.message);
+        statusDiv.className = "status-bar error";
     }
 };
 
-// ==================== 2. DATA (20 WORDS, 20 SENTENCES, 10 QUIZ) ====================
+// ==================== 2. DATA (20 WORDS, 20 SENTENCES) ====================
 const wordsData = {
-    english: [
-        ["Hello", "नमस्ते"], ["Good Morning", "सुप्रभात"], ["Thank You", "धन्यवाद"], ["Please", "कृपया"],
-        ["Sorry", "माफ़ कीजिए"], ["Yes", "हाँ"], ["No", "नहीं"], ["Friend", "मित्र"], ["Love", "प्यार"],
-        ["Happy", "खुश"], ["Sad", "उदास"], ["Big", "बड़ा"], ["Small", "छोटा"], ["Beautiful", "सुंदर"],
-        ["Family", "परिवार"], ["Mother", "माँ"], ["Father", "पिता"], ["Brother", "भाई"], ["Sister", "बहन"],
-        ["Water", "पानी"]
-    ],
-    spanish: [
-        ["Hello", "Hola"], ["Good Morning", "Buenos días"], ["Thank You", "Gracias"], ["Please", "Por favor"],
-        ["Sorry", "Lo siento"], ["Yes", "Sí"], ["No", "No"], ["Friend", "Amigo"], ["Love", "Amor"],
-        ["Happy", "Feliz"], ["Sad", "Triste"], ["Big", "Grande"], ["Small", "Pequeño"], ["Beautiful", "Hermoso"],
-        ["Family", "Familia"], ["Mother", "Madre"], ["Father", "Padre"], ["Brother", "Hermano"], ["Sister", "Hermana"],
-        ["Water", "Agua"]
-    ],
-    french: [
-        ["Hello", "Bonjour"], ["Good Morning", "Bonjour"], ["Thank You", "Merci"], ["Please", "S'il vous plaît"],
-        ["Sorry", "Désolé"], ["Yes", "Oui"], ["No", "Non"], ["Friend", "Ami"], ["Love", "Amour"],
-        ["Happy", "Heureux"], ["Sad", "Triste"], ["Big", "Grand"], ["Small", "Petit"], ["Beautiful", "Beau"],
-        ["Family", "Famille"], ["Mother", "Mère"], ["Father", "Père"], ["Brother", "Frère"], ["Sister", "Sœur"],
-        ["Water", "Eau"]
-    ]
+    english: [ ["Hello","नमस्ते"],["Good Morning","सुप्रभात"],["Thank You","धन्यवाद"],["Please","कृपया"],["Sorry","माफ़ कीजिए"],["Yes","हाँ"],["No","नहीं"],["Friend","मित्र"],["Love","प्यार"],["Happy","खुश"],["Sad","उदास"],["Big","बड़ा"],["Small","छोटा"],["Beautiful","सुंदर"],["Family","परिवार"],["Mother","माँ"],["Father","पिता"],["Brother","भाई"],["Sister","बहन"],["Water","पानी"] ],
+    spanish: [ ["Hello","Hola"],["Good Morning","Buenos días"],["Thank You","Gracias"],["Please","Por favor"],["Sorry","Lo siento"],["Yes","Sí"],["No","No"],["Friend","Amigo"],["Love","Amor"],["Happy","Feliz"],["Sad","Triste"],["Big","Grande"],["Small","Pequeño"],["Beautiful","Hermoso"],["Family","Familia"],["Mother","Madre"],["Father","Padre"],["Brother","Hermano"],["Sister","Hermana"],["Water","Agua"] ],
+    french: [ ["Hello","Bonjour"],["Good Morning","Bonjour"],["Thank You","Merci"],["Please","S'il vous plaît"],["Sorry","Désolé"],["Yes","Oui"],["No","Non"],["Friend","Ami"],["Love","Amour"],["Happy","Heureux"],["Sad","Triste"],["Big","Grand"],["Small","Petit"],["Beautiful","Beau"],["Family","Famille"],["Mother","Mère"],["Father","Père"],["Brother","Frère"],["Sister","Sœur"],["Water","Eau"] ]
 };
 
 const sentencesData = {
+    english: [ ["How are you?","आप कैसे हैं?"],["I am fine","मैं ठीक हूँ"],["What is your name?","आपका नाम क्या है?"],["Where are you from?","आप कहाँ से हैं?"],["Nice to meet you","आपसे मिलकर खुशी हुई"],["Good luck","शुभकामनाएँ"],["I love you","मैं तुमसे प्यार करता हूँ"],["See you later","फिर मिलेंगे"],["Excuse me","क्षमा करें"],["How much is this?","यह कितने का है?"],["I am hungry","मुझे भूख लगी है"],["I am tired","मैं थक गया हूँ"],["Let's go","चलो चलते हैं"],["Wait a moment","एक मिनट रुको"],["Help me","मेरी मदद करो"],["I don't understand","मुझे समझ नहीं आया"],["Say it again","फिर से कहो"],["Congratulations","बधाई हो"],["Bon Appetit","भोजन का आनंद लें"],["Good Night","शुभ रात्रि"] ],
+    spanish: [ ["How are you?","¿Cómo estás?"],["I am fine","Estoy bien"],["What is your name?","¿Cómo te llamas?"],["Where are you from?","¿De dónde eres?"],["Nice to meet you","Mucho gusto"],["Good luck","Buena suerte"],["I love you","Te quiero"],["See you later","Hasta luego"],["Excuse me","Perdón"],["How much is this?","¿Cuánto cuesta?"],["I am hungry","Tengo hambre"],["I am tired","Estoy cansado"],["Let's go","Vamos"],["Wait a moment","Espera un momento"],["Help me","Ayúdame"],["I don't understand","No entiendo"],["Say it again","Dilo de nuevo"],["Congratulations","Felicidades"],["Bon Appetit","Buen provecho"],["Good Night","Buenas noches"] ],
+    french: [ ["How are you?","Comment ça va?"],["I am fine","Je vais bien"],["What is your name?","Comment tu t'appelles?"],["Where are you from?","Tu viens d'où?"],["Nice to meet you","Enchanté"],["Good luck","Bonne chance"],["I love you","Je t'aime"],["See you later","À plus tard"],["Excuse me","Excusez-moi"],["How much is this?","Combien ça coûte?"],["I am hungry","J'ai faim"],["I am tired","Je suis fatigué"],["Let's go","Allons-y"],["Wait a moment","Attends un moment"],["Help me","Aidez-moi"],["I don't understand","Je ne comprends pas"],["Say it again","Répétez"],["Congratulations","Félicitations"],["Bon Appetit","Bon appétit"],["Good Night","Bonne nuit"] ]
+};
+
+// ==================== 3. MCQ QUIZ DATA ====================
+const mcqBank = {
     english: [
-        ["How are you?", "आप कैसे हैं?"], ["I am fine", "मैं ठीक हूँ"], ["What is your name?", "आपका नाम क्या है?"],
-        ["Where are you from?", "आप कहाँ से हैं?"], ["Nice to meet you", "आपसे मिलकर खुशी हुई"], ["Good luck", "शुभकामनाएँ"],
-        ["I love you", "मैं तुमसे प्यार करता हूँ"], ["See you later", "फिर मिलेंगे"], ["Excuse me", "क्षमा करें"],
-        ["How much is this?", "यह कितने का है?"], ["I am hungry", "मुझे भूख लगी है"], ["I am tired", "मैं थक गया हूँ"],
-        ["Let's go", "चलो चलते हैं"], ["Wait a moment", "एक मिनट रुको"], ["Help me", "मेरी मदद करो"],
-        ["I don't understand", "मुझे समझ नहीं आया"], ["Say it again", "फिर से कहो"], ["Congratulations", "बधाई हो"],
-        ["Bon Appetit", "भोजन का आनंद लें"], ["Good Night", "शुभ रात्रि"]
+        { q: "What is the Hindi meaning of 'Hello'?", options: ["नमस्ते","धन्यवाद","मित्र","पानी"], correct: "नमस्ते" },
+        { q: "What is 'Thank You' in Hindi?", options: ["कृपया","धन्यवाद","माफ़ कीजिए","हाँ"], correct: "धन्यवाद" },
+        { q: "Translate 'Friend' to Hindi.", options: ["परिवार","प्यार","मित्र","सुंदर"], correct: "मित्र" },
+        { q: "Meaning of 'Water' in Hindi?", options: ["पानी","अग्नि","वायु","पृथ्वी"], correct: "पानी" },
+        { q: "How to say 'Good Morning' in Hindi?", options: ["शुभ रात्रि","सुप्रभात","शुभ संध्या","नमस्ते"], correct: "सुप्रभात" }
     ],
     spanish: [
-        ["How are you?", "¿Cómo estás?"], ["I am fine", "Estoy bien"], ["What is your name?", "¿Cómo te llamas?"],
-        ["Where are you from?", "¿De dónde eres?"], ["Nice to meet you", "Mucho gusto"], ["Good luck", "Buena suerte"],
-        ["I love you", "Te quiero"], ["See you later", "Hasta luego"], ["Excuse me", "Perdón"],
-        ["How much is this?", "¿Cuánto cuesta?"], ["I am hungry", "Tengo hambre"], ["I am tired", "Estoy cansado"],
-        ["Let's go", "Vamos"], ["Wait a moment", "Espera un momento"], ["Help me", "Ayúdame"],
-        ["I don't understand", "No entiendo"], ["Say it again", "Dilo de nuevo"], ["Congratulations", "Felicidades"],
-        ["Bon Appetit", "Buen provecho"], ["Good Night", "Buenas noches"]
+        { q: "What is 'Hello' in Spanish?", options: ["Hola","Adiós","Gracias","Amigo"], correct: "Hola" },
+        { q: "Meaning of 'Thank You' in Spanish?", options: ["Por favor","Lo siento","Gracias","Sí"], correct: "Gracias" },
+        { q: "How to say 'Friend' in Spanish?", options: ["Familia","Amor","Amigo","Agua"], correct: "Amigo" },
+        { q: "What is 'Water' in Spanish?", options: ["Fuego","Tierra","Aire","Agua"], correct: "Agua" },
+        { q: "Translate 'Good Morning' to Spanish.", options: ["Buenas noches","Buenas tardes","Buenos días","Hola"], correct: "Buenos días" }
     ],
     french: [
-        ["How are you?", "Comment ça va?"], ["I am fine", "Je vais bien"], ["What is your name?", "Comment tu t'appelles?"],
-        ["Where are you from?", "Tu viens d'où?"], ["Nice to meet you", "Enchanté"], ["Good luck", "Bonne chance"],
-        ["I love you", "Je t'aime"], ["See you later", "À plus tard"], ["Excuse me", "Excusez-moi"],
-        ["How much is this?", "Combien ça coûte?"], ["I am hungry", "J'ai faim"], ["I am tired", "Je suis fatigué"],
-        ["Let's go", "Allons-y"], ["Wait a moment", "Attends un moment"], ["Help me", "Aidez-moi"],
-        ["I don't understand", "Je ne comprends pas"], ["Say it again", "Répétez s'il vous plaît"], ["Congratulations", "Félicitations"],
-        ["Bon Appetit", "Bon appétit"], ["Good Night", "Bonne nuit"]
+        { q: "How to say 'Hello' in French?", options: ["Merci","Bonjour","Ami","Au revoir"], correct: "Bonjour" },
+        { q: "Meaning of 'Thank You' in French?", options: ["S'il vous plaît","Désolé","Merci","Oui"], correct: "Merci" },
+        { q: "Translate 'Friend' to French.", options: ["Famille","Amour","Ami","Eau"], correct: "Ami" },
+        { q: "What is 'Water' in French?", options: ["Feu","Terre","Air","Eau"], correct: "Eau" },
+        { q: "How to say 'Good Night' in French?", options: ["Bonjour","Bonsoir","Bonne nuit","Salut"], correct: "Bonne nuit" }
     ]
 };
 
-const quizData = {
-    english: [
-        { q: "Hindi meaning of 'Hello'?", a: "नमस्ते" }, { q: "Hindi meaning of 'Thank You'?", a: "धन्यवाद" },
-        { q: "Hindi meaning of 'Friend'?", a: "मित्र" }, { q: "Hindi meaning of 'Water'?", a: "पानी" },
-        { q: "Hindi meaning of 'Good Morning'?", a: "सुप्रभात" }, { q: "Hindi meaning of 'Love'?", a: "प्यार" },
-        { q: "Hindi meaning of 'Family'?", a: "परिवार" }, { q: "Hindi meaning of 'Yes'?", a: "हाँ" },
-        { q: "Hindi meaning of 'No'?", a: "नहीं" }, { q: "Hindi meaning of 'Beautiful'?", a: "सुंदर" }
-    ],
-    spanish: [
-        { q: "Spanish for 'Hello'?", a: "Hola" }, { q: "Spanish for 'Thank You'?", a: "Gracias" },
-        { q: "Spanish for 'Friend'?", a: "Amigo" }, { q: "Spanish for 'Water'?", a: "Agua" },
-        { q: "Spanish for 'Good Morning'?", a: "Buenos días" }, { q: "Spanish for 'Love'?", a: "Amor" },
-        { q: "Spanish for 'Family'?", a: "Familia" }, { q: "Spanish for 'Yes'?", a: "Sí" },
-        { q: "Spanish for 'No'?", a: "No" }, { q: "Spanish for 'Beautiful'?", a: "Hermoso" }
-    ],
-    french: [
-        { q: "French for 'Hello'?", a: "Bonjour" }, { q: "French for 'Thank You'?", a: "Merci" },
-        { q: "French for 'Friend'?", a: "Ami" }, { q: "French for 'Water'?", a: "Eau" },
-        { q: "French for 'Good Morning'?", a: "Bonjour" }, { q: "French for 'Love'?", a: "Amour" },
-        { q: "French for 'Family'?", a: "Famille" }, { q: "French for 'Yes'?", a: "Oui" },
-        { q: "French for 'No'?", a: "Non" }, { q: "French for 'Beautiful'?", a: "Beau" }
-    ]
-};
+let userMcqAnswers = {};
 
-// ==================== 3. RENDER FUNCTIONS ====================
-let currentUser = null;
+// ==================== 4. RENDER FUNCTIONS ====================
+function switchLevel(level) {
+    localStorage.setItem("level", level);
+    
+    // Update active nav button
+    document.getElementById("navBasic").classList.remove("active");
+    document.getElementById("navInter").classList.remove("active");
+    document.getElementById("navAdv").classList.remove("active");
+    
+    if (level === "basic") {
+        document.getElementById("navBasic").classList.add("active");
+        document.getElementById("basicSection").style.display = "block";
+        document.getElementById("intermediateSection").style.display = "none";
+        document.getElementById("advancedSection").style.display = "none";
+        loadBasicLevel();
+    } else if (level === "intermediate") {
+        document.getElementById("navInter").classList.add("active");
+        document.getElementById("basicSection").style.display = "none";
+        document.getElementById("intermediateSection").style.display = "block";
+        document.getElementById("advancedSection").style.display = "none";
+        loadIntermediateLevel();
+    } else if (level === "advanced") {
+        document.getElementById("navAdv").classList.add("active");
+        document.getElementById("basicSection").style.display = "none";
+        document.getElementById("intermediateSection").style.display = "none";
+        document.getElementById("advancedSection").style.display = "block";
+        loadAdvancedLevel();
+    }
+}
 
 function loadBasicLevel() {
     let lang = localStorage.getItem("language") || "english";
-    let langCode = (lang === "spanish") ? "es" : (lang === "french") ? "fr" : "en";
+    let code = (lang === "spanish") ? "es" : (lang === "french") ? "fr" : "en";
     let words = wordsData[lang];
     let mid = Math.ceil(words.length / 2);
     
-    document.getElementById("langHead1").innerText = (lang === "english") ? "हिन्दी" : "Translation";
-    document.getElementById("langHead2").innerText = (lang === "english") ? "हिन्दी" : "Translation";
-    
-    function fillTable(tableId, data) {
-        let tbody = document.getElementById(tableId);
-        tbody.innerHTML = "";
-        data.forEach(w => {
-            let row = tbody.insertRow();
-            row.insertCell(0).innerText = w[0];
-            row.insertCell(1).innerHTML = `${w[1]} <button onclick="speak('${w[1].replace(/'/g, "\\'")}', '${langCode}')">🔊</button>`;
-        });
+    function fill(tId, arr) { 
+        let t = document.getElementById(tId); 
+        t.innerHTML = ""; 
+        arr.forEach(w => { 
+            let r = t.insertRow(); 
+            r.insertCell(0).innerText = w[0]; 
+            r.insertCell(1).innerHTML = `${w[1]} <button onclick="speak('${w[1].replace(/'/g, "\\'")}', '${code}')">🔊</button>`; 
+        }); 
     }
-    fillTable("table1", words.slice(0, mid));
-    fillTable("table2", words.slice(mid));
-    
-    document.getElementById("basicSection").style.display = "block";
-    document.getElementById("intermediateSection").style.display = "none";
-    document.getElementById("advancedSection").style.display = "none";
-    document.getElementById("quizTitle").innerHTML = `${lang.toUpperCase()} - BASIC LEVEL (20 Words)`;
+    fill("table1", words.slice(0, mid)); 
+    fill("table2", words.slice(mid));
 }
 
 function loadIntermediateLevel() {
     let lang = localStorage.getItem("language") || "english";
-    let langCode = (lang === "spanish") ? "es" : (lang === "french") ? "fr" : "en";
+    let code = (lang === "spanish") ? "es" : (lang === "french") ? "fr" : "en";
     let sentences = sentencesData[lang];
     let mid = Math.ceil(sentences.length / 2);
     
-    document.getElementById("sentHead1").innerText = (lang === "english") ? "हिन्दी" : "Translation";
-    document.getElementById("sentHead2").innerText = (lang === "english") ? "हिन्दी" : "Translation";
-    
-    function fillTable(tableId, data) {
-        let tbody = document.getElementById(tableId);
-        tbody.innerHTML = "";
-        data.forEach(s => {
-            let row = tbody.insertRow();
-            row.insertCell(0).innerText = s[0];
-            row.insertCell(1).innerHTML = `${s[1]} <button onclick="speak('${s[1].replace(/'/g, "\\'")}', '${langCode}')">🔊</button>`;
-        });
+    function fill(tId, arr) { 
+        let t = document.getElementById(tId); 
+        t.innerHTML = ""; 
+        arr.forEach(s => { 
+            let r = t.insertRow(); 
+            r.insertCell(0).innerText = s[0]; 
+            r.insertCell(1).innerHTML = `${s[1]} <button onclick="speak('${s[1].replace(/'/g, "\\'")}', '${code}')">🔊</button>`; 
+        }); 
     }
-    fillTable("sentenceTable1", sentences.slice(0, mid));
-    fillTable("sentenceTable2", sentences.slice(mid));
-    
-    document.getElementById("basicSection").style.display = "none";
-    document.getElementById("intermediateSection").style.display = "block";
-    document.getElementById("advancedSection").style.display = "none";
-    document.getElementById("quizTitle").innerHTML = `${lang.toUpperCase()} - INTERMEDIATE LEVEL (20 Sentences)`;
+    fill("sentenceTable1", sentences.slice(0, mid)); 
+    fill("sentenceTable2", sentences.slice(mid));
 }
 
 function loadAdvancedLevel() {
     let lang = localStorage.getItem("language") || "english";
-    let questions = quizData[lang];
+    let questions = mcqBank[lang];
     let container = document.getElementById("questionsContainer");
-    let targetCode = (lang === "english") ? "hi" : (lang === "spanish") ? "es" : "fr";
-    
-    document.getElementById("totalQuestions").innerText = questions.length;
     container.innerHTML = "";
     
     questions.forEach((q, idx) => {
-        let div = document.createElement("div");
+        let div = document.createElement("div"); 
         div.className = "quiz-card";
+        let optsHtml = `<div class="options-list">`;
+        q.options.forEach(opt => {
+            optsHtml += `<label class="option-item"><input type="radio" name="q${idx}" value="${opt}"><span>${opt}</span></label>`;
+        });
+        optsHtml += `</div>`;
         div.innerHTML = `
-            <h3>❓ Question ${idx+1}: ${q.q}</h3>
-            <input type="text" id="ans_${idx}" placeholder="Type your answer here...">
+            <div class="quiz-question">❓ ${idx+1}. ${q.q}</div>
+            ${optsHtml}
             <div>
-                <button class="btn" onclick="checkAnswer(${idx})">🔍 Check Answer</button>
-                <button class="btn btn-warning" onclick="speak('${q.a.replace(/'/g, "\\'")}', '${targetCode}')">🔊 Hear Answer</button>
+                <button class="btn" onclick="checkMcq(${idx})">✅ Check Answer</button>
+                <button class="btn btn-warning" onclick="speak('${q.correct.replace(/'/g, "\\'")}', '${lang === "english" ? "hi" : (lang === "spanish" ? "es" : "fr")}')">🔊 Hear Correct Answer</button>
             </div>
-            <div id="res_${idx}" class="quiz-result" style="background: rgba(255,152,0,0.3); color:#FF9800;">⏳ Not attempted</div>
+            <div id="mcqRes${idx}" class="quiz-result" style="background: #ff980033; color:#ffcc00;">⚡ Not checked</div>
         `;
         container.appendChild(div);
     });
-    updateScore();
+    updateMcqScore();
+}
+
+function checkMcq(idx) {
+    let lang = localStorage.getItem("language") || "english";
+    let questions = mcqBank[lang];
+    let selected = document.querySelector(`input[name="q${idx}"]:checked`);
+    let resDiv = document.getElementById(`mcqRes${idx}`);
     
-    document.getElementById("basicSection").style.display = "none";
-    document.getElementById("intermediateSection").style.display = "none";
-    document.getElementById("advancedSection").style.display = "block";
-    document.getElementById("quizTitle").innerHTML = `${lang.toUpperCase()} - ADVANCED LEVEL (10 Questions)`;
-}
-
-function checkAnswer(idx) {
-    let lang = localStorage.getItem("language") || "english";
-    let questions = quizData[lang];
-    let userVal = document.getElementById(`ans_${idx}`).value.trim().toLowerCase();
-    let correctVal = questions[idx].a.toLowerCase();
-    let resDiv = document.getElementById(`res_${idx}`);
+    if (!selected) { 
+        resDiv.innerHTML = "❌ Please select an option!"; 
+        resDiv.style.background = "#ff444455"; 
+        return; 
+    }
     
-    if (userVal === correctVal) {
-        resDiv.innerHTML = "✅ Correct! Great Job!";
-        resDiv.style.background = "rgba(76, 175, 80, 0.3)";
-        resDiv.style.color = "#4CAF50";
-    } else {
-        resDiv.innerHTML = `❌ Incorrect. Correct answer: ${questions[idx].a}`;
-        resDiv.style.background = "rgba(244, 67, 54, 0.3)";
-        resDiv.style.color = "#f44336";
+    if (selected.value === questions[idx].correct) { 
+        resDiv.innerHTML = "✅ Correct! Well done."; 
+        resDiv.style.background = "#4caf5055"; 
+        resDiv.style.color = "#a5d6a7"; 
+        userMcqAnswers[idx] = true; 
+    } else { 
+        resDiv.innerHTML = `❌ Wrong! Correct answer: ${questions[idx].correct}`; 
+        resDiv.style.background = "#f4433655"; 
+        resDiv.style.color = "#ffcdd2"; 
+        userMcqAnswers[idx] = false; 
     }
-    updateScore();
+    updateMcqScore();
 }
 
-function updateScore() {
+function updateMcqScore() {
     let lang = localStorage.getItem("language") || "english";
-    let questions = quizData[lang];
-    let score = 0;
-    for (let i = 0; i < questions.length; i++) {
-        let el = document.getElementById(`res_${i}`);
-        if (el && el.innerHTML.includes("Correct")) score++;
-    }
-    document.getElementById("scoreDisplay").innerHTML = `📊 Score: ${score} / ${questions.length}`;
+    let total = mcqBank[lang].length;
+    let score = Object.values(userMcqAnswers).filter(v => v === true).length;
+    document.getElementById("scoreDisplay").innerHTML = `📊 Score: ${score} / ${total}`;
 }
 
-function submitQuiz() {
+function submitMcqQuiz() {
     let lang = localStorage.getItem("language") || "english";
-    let questions = quizData[lang];
-    for (let i = 0; i < questions.length; i++) checkAnswer(i);
-    let finalScore = document.getElementById("scoreDisplay").innerHTML;
-    alert(`🎉 Quiz Completed! ${finalScore}\nYou earned 150 Points!`);
+    let total = mcqBank[lang].length;
+    for(let i=0; i<total; i++) checkMcq(i);
+    let final = document.getElementById("scoreDisplay").innerHTML;
+    alert(`🎉 Quiz Completed! ${final}\nYou earned 150 Points for completing Advanced Level!`);
     markAdvancedComplete();
 }
 
+// ==================== 5. FIREBASE ====================
+let currentUser = null;
 async function markAdvancedComplete() {
-    if (!currentUser) return;
+    if (!currentUser) { alert("Progress Saved! +150 Points."); window.location.href = "level.html"; return; }
     let lang = localStorage.getItem("language");
-    let points = 150;
     try {
         const userRef = doc(db, "users", currentUser.uid);
-        const userSnap = await getDoc(userRef);
-        let data = userSnap.data();
+        const snap = await getDoc(userRef);
+        let data = snap.data();
         if (!data.progress[lang]) data.progress[lang] = { basic: false, intermediate: false, advanced: false };
         if (!data.progress[lang]["advanced"]) {
             data.progress[lang]["advanced"] = true;
-            await updateDoc(userRef, { progress: data.progress, totalPoints: (data.totalPoints || 0) + points, quizzesCompleted: (data.quizzesCompleted || 0) + 1 });
-            alert("Advanced Level Complete! +150 Points. Redirecting...");
+            await updateDoc(userRef, { progress: data.progress, totalPoints: (data.totalPoints || 0) + 150, quizzesCompleted: (data.quizzesCompleted || 0) + 1 });
+            alert("✅ Advanced Level Complete! +150 Points. Redirecting...");
             window.location.href = "level.html";
-        }
-    } catch(e) { console.log(e); alert("Progress Saved +150 Points!"); window.location.href = "level.html"; }
+        } else { alert("You already completed this level!"); window.location.href = "level.html"; }
+    } catch(e) { console.log(e); alert("Progress Saved! +150 Points."); window.location.href = "level.html"; }
 }
 
+// ==================== 6. INITIALIZE ====================
 function initPage() {
     let level = localStorage.getItem("level") || "basic";
-    if (level === "basic") loadBasicLevel();
-    else if (level === "intermediate") loadIntermediateLevel();
-    else loadAdvancedLevel();
+    switchLevel(level);
+    
+    // Set language title in nav
+    let lang = localStorage.getItem("language") || "english";
+    document.querySelectorAll(".level-nav-btn").forEach(btn => {
+        let text = btn.innerText;
+        btn.innerText = text.split("(")[0] + `(${lang.toUpperCase()})`;
+    });
 }
+// Load voices properly
+let voices = [];
+
+function loadVoices() {
+    voices = speechSynthesis.getVoices();
+}
+
+// Some browsers load voices late
+speechSynthesis.onvoiceschanged = loadVoices;
+
+// Initial call
+loadVoices();
+
+window.speak = function(text, langCode) {
+    const statusDiv = document.getElementById("globalStatus");
+
+    if (!window.speechSynthesis) {
+        alert("Speech not supported. Use Google Chrome.");
+        return;
+    }
+
+    if (!voices.length) {
+        loadVoices();
+    }
+
+    // Stop previous speech
+    speechSynthesis.cancel();
+
+    const utterance = new SpeechSynthesisUtterance(text);
+
+    // Language mapping
+    const langMap = {
+        en: "en-US",
+        hi: "hi-IN",
+        es: "es-ES",
+        fr: "fr-FR"
+    };
+
+    const selectedLang = langMap[langCode] || "en-US";
+    utterance.lang = selectedLang;
+
+    // 🎯 BEST MATCH VOICE SELECT
+    const selectedVoice = voices.find(v => v.lang === selectedLang);
+
+    if (selectedVoice) {
+        utterance.voice = selectedVoice;
+    } else {
+        console.warn("Voice not found, using default");
+    }
+
+    utterance.rate = 0.9;
+    utterance.pitch = 1;
+    utterance.volume = 1;
+
+    utterance.onstart = () => {
+        statusDiv.innerHTML = "🔊 Speaking...";
+        statusDiv.className = "status-bar";
+    };
+
+    utterance.onend = () => {
+        statusDiv.innerHTML = "✅ Done. Click again.";
+        statusDiv.className = "status-bar success";
+    };
+
+    utterance.onerror = (e) => {
+        console.error(e);
+        statusDiv.innerHTML = "❌ Voice error! Try Chrome.";
+        statusDiv.className = "status-bar error";
+    };
+
+    speechSynthesis.speak(utterance);
+};
+
 initPage();
 </script>
 
@@ -365,8 +485,10 @@ initPage();
     import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
     import { doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
     onAuthStateChanged(auth, (user) => { if (!user) window.location.href = "login.html"; else currentUser = user; });
-    window.checkAnswer = checkAnswer;
-    window.submitQuiz = submitQuiz;
+    window.checkMcq = checkMcq;
+    window.submitMcqQuiz = submitMcqQuiz;
+    window.switchLevel = switchLevel;
+    window.testSpeakFunction = testSpeakFunction;
 </script>
 </body>
 </html>
